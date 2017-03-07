@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +33,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -94,6 +97,7 @@ public class EmailLoginActivity extends AppCompatActivity implements LoaderCallb
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         Button registerButton = (Button) findViewById(R.id.email_register_button);
+       final LinearLayout linearLayout = (LinearLayout) findViewById(R.id.email_login);
 
         registerButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -105,7 +109,12 @@ public class EmailLoginActivity extends AppCompatActivity implements LoaderCallb
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                doLogin();
+                if(isNetworkAvailable()){
+                    doLogin();
+                }else {
+                    Snackbar.make(linearLayout,"Not Connected", Snackbar.LENGTH_LONG);
+                }
+
             }
         });
 
@@ -322,5 +331,13 @@ public class EmailLoginActivity extends AppCompatActivity implements LoaderCallb
                 );
         queue.add(jsObjRequest);
     }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
 
 }

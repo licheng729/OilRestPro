@@ -3,25 +3,39 @@ package com.UpTopApps.OilResetPro;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.UpTopApps.OilResetPro.util.IabHelper;
 import com.UpTopApps.OilResetPro.util.IabResult;
 import com.UpTopApps.OilResetPro.util.Inventory;
 import com.UpTopApps.OilResetPro.util.Purchase;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class SettingsActivity extends AppCompatActivity implements View.OnClickListener {
 
     IabHelper mHelper;
     String TAG = "SettingsActivity";
     static final String ITEM_SKU = "com_uptopapps_oilresetpro_removeads";// New One 2.99 / updated
-//	static final String ITEM_SKU = "com_uptopapps_oilresetpro_removeads"; // Old one 0.99
-//	static final String ITEM_Un_Block_Cars = "com_uptopapps_oilresetpro_dummyunlockcar1";
+    SharedPreferences sharedPref;
+    SharedPreferences.Editor editor;
+    String url = "http://oilresetproapi.sandboxserver.co.za/update-payment";
+    RequestQueue queue;
+    private ProgressDialog mProgressDialog;
+
 private ProgressDialog dialog;
     protected boolean in_App_Billing;
     protected boolean in_App_Billing_disable = true;
@@ -84,13 +98,70 @@ private ProgressDialog dialog;
         {
             if (result.isFailure()) {
                 Log.d(TAG, "Error purchasing: " + result);
+                String msg = "Error purchasing: " + result;
+                Toast.makeText(SettingsActivity.this,msg,Toast.LENGTH_LONG).show();
                 return;
             }
             else if (purchase.getSku().equals(ITEM_SKU)) {
                 // consume the gas and update the UI
+                showProgressDialog();
+                JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                        (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                // mTxtDisplay.setText("Response: " + response.toString());
+                                hideProgressDialog();
+                                String res = null;
+                                try {
+                                    Log.d("Response: ",  response.toString());
+                                    res = response.getString("response");
+                                    //   Log.d("Response: ",  res);
+                                    if(res.equals("success")){
+                                            editor.putBoolean(Constants.HAS_PAID, true);
+
+                                        editor.commit();
+
+                                    }else {
+                                        Toast.makeText(SettingsActivity.this,res,Toast.LENGTH_LONG).show();
+                                    }
+                                }catch (JSONException ex){
+
+                                }catch (NumberFormatException ex2){
+                                    Toast.makeText(SettingsActivity.this,res,Toast.LENGTH_LONG).show();
+                                }
+
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                // TODO Auto-generated method stub
+                                showProgressDialog();
+
+                            }
+                        }
+                        );
+                queue.add(jsObjRequest);
             }
         }
     };
+
+    private void showProgressDialog() {
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setMessage(getString(R.string.loading));
+            mProgressDialog.setIndeterminate(true);
+        }
+
+        mProgressDialog.show();
+    }
+
+    private void hideProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.hide();
+        }
+    }
 
     @Override
     public void onDestroy() {
