@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">"Oil Reset Pro"</string>
+    <string name="facebook_app_id">1838589159699176</string>
+    <string name="fb_login_protocol_scheme">fb1838589159699176</string>
+    <string name="fb_login_text">Login With Facebook</string>
+    <string name="gp_login_text">Login With Google+</string>
+    <string name="orp_login_text">Login With Your Email</string>
+    <string name="loading">Loading…</string>
+    <string name="title_activity_email_login">Sign in</string>
+
+    <!-- Strings related to login and register -->
+    <string name="prompt_email">Email</string>
+    <string name="not_registered">Not registered ?</string>
+    <string name="have_an_account">Already have an account ?</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_register">Register</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="repeat_password">Repeat Password</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="title_activity_email_registration">Registration</string>
+    <string name="banner_ad_unit_id">ca-app-pub-6367600362410330/8364426808</string>
+
+    <string name="app_client_id">5475cac8-05dc-43f2-84a4-7b5a9f5ea9f8</string>
+    <string name="app_redirect_uri">https://oilresetpro.com/</string>
+    <string name="preference_file_key">com.UpTopApps.OilResetPro439477575975</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+</resources>
