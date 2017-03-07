@@ -1,17 +1,14 @@
 package com.UpTopApps.OilResetPro;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.view.Window;
-import android.widget.TextView;
+import android.util.Log;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -27,9 +24,11 @@ public class SplashActivity extends AppCompatActivity {
 
         dClass = dClass.LoadCurUser(this);
         // Get token
-     //   final String token = FirebaseInstanceId.getInstance().getToken();
+
 
         Context context = SplashActivity.this;
+        FirebaseApp.initializeApp(context);
+        final String token = FirebaseInstanceId.getInstance().getToken();
         SharedPreferences sharedPref = context.getSharedPreferences(
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         final  SharedPreferences.Editor  editor = sharedPref.edit();
@@ -44,6 +43,9 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable(){
             @Override
             public void run() {
+                if(!token.equals(null)){
+                    editor.putString(Constants.DEVICE_TOKEN, token);
+                }
                 if(is_first_time){
                     startActivity(introActivityIntent);
                 }else {
@@ -53,7 +55,7 @@ public class SplashActivity extends AppCompatActivity {
                         startActivity(homeActivityIntent);
                     }
                 }
-              //  editor.putString(Constants.DEVICE_TOKEN, token);
+
                 finish();
             }
         }, 2000);
