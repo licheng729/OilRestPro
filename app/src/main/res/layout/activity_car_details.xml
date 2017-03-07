@@ -109,7 +109,7 @@ android:weightSum="1"
     </LinearLayout>
 </LinearLayout>
 
-    <LinearLayout
+  <!--  <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -123,5 +123,5 @@ android:weightSum="1"
             ads:adSize="LEADERBOARD"
             ads:adUnitId="@string/banner_ad_unit_id">
         </com.google.android.gms.ads.AdView>
-    </LinearLayout>
+    </LinearLayout>-->
 </LinearLayout>

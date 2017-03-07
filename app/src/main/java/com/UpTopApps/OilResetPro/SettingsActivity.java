@@ -119,8 +119,9 @@ private ProgressDialog dialog;
                                     //   Log.d("Response: ",  res);
                                     if(res.equals("success")){
                                             editor.putBoolean(Constants.HAS_PAID, true);
-
                                         editor.commit();
+                                        remove_aids.setImageDrawable(getResources().getDrawable(
+                                                R.mipmap.in_app_purchase_1_done));
 
                                     }else {
                                         Toast.makeText(SettingsActivity.this,res,Toast.LENGTH_LONG).show();

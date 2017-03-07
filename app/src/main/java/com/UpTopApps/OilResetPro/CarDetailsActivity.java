@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,12 +21,15 @@ import com.UpTopApps.OilResetPro.helper.DataClass_RP;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.AdListener;
 
 public class CarDetailsActivity extends AppCompatActivity implements OnClickListener {
 
     private AdView mAdView;
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
+    boolean has_paid;
 
     Bundle bundle;
     TextView reset_txt1;
@@ -39,8 +43,7 @@ public class CarDetailsActivity extends AppCompatActivity implements OnClickList
 //	private String reset;
     CarsData data;
     ImageView btn_video, btn_share;
-
-
+    private InterstitialAd mInterstitialAd;
     boolean haveVideo = false;
 
     @Override
@@ -63,13 +66,26 @@ public class CarDetailsActivity extends AppCompatActivity implements OnClickList
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         editor = sharedPref.edit();
 
-        final boolean has_paid = sharedPref.getBoolean(Constants.HAS_PAID, false);
+         has_paid = sharedPref.getBoolean(Constants.HAS_PAID, false);
 
         if(!has_paid){
             // Initialize the Mobile Ads SDK.
-            MobileAds.initialize(this, "ca-app-pub-6367600362410330/8364426808");
+            MobileAds.initialize(this, "ca-app-pub-6367600362410330/9841160007");
 
-            // Gets the ad view defined in layout/ad_fragment.xml with ad unit ID set in
+            mInterstitialAd = new InterstitialAd(context);
+            // Defined in res/values/strings.xml
+            mInterstitialAd.setAdUnitId("ca-app-pub-6367600362410330/9841160007");
+
+            showInterstitial();
+
+            mInterstitialAd.setAdListener(new AdListener() {
+                @Override
+                public void onAdClosed() {
+
+                }
+            });
+
+         /*   // Gets the ad view defined in layout/ad_fragment.xml with ad unit ID set in
             // values/strings.xml.
             mAdView = (AdView) findViewById(R.id.adView);
             mAdView.setVisibility(View.VISIBLE);
@@ -81,7 +97,7 @@ public class CarDetailsActivity extends AppCompatActivity implements OnClickList
                     .build();
 
             // Start loading the ad in the background.
-            mAdView.loadAd(adRequest);
+            mAdView.loadAd(adRequest);*/
         }
 
 
@@ -200,6 +216,30 @@ public class CarDetailsActivity extends AppCompatActivity implements OnClickList
 
         if(dClass.back){
             finish();
+        }
+        has_paid = sharedPref.getBoolean(Constants.HAS_PAID, false);
+        if(!has_paid){
+            showInterstitial();
+        }
+
+
+    }
+
+    private void showInterstitial() {
+        // Show the ad if it's ready. Otherwise toast and restart the game.
+        if (mInterstitialAd != null && mInterstitialAd.isLoaded()) {
+            Log.d("ad", "loading ad");
+            mInterstitialAd.show();
+        } else {
+            loadAd();
+        }
+    }
+
+    private void loadAd() {
+        // Request a new ad if one isn't already loaded, hide the button, and kick off the timer.
+        if (!mInterstitialAd.isLoading() && !mInterstitialAd.isLoaded()) {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mInterstitialAd.loadAd(adRequest);
         }
 
     }
