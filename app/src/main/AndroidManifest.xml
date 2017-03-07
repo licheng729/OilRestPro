@@ -76,6 +76,10 @@
             </intent-filter>
         </service>
         <!-- [END firebase_iid_service] -->
+        <service
+            android:name=".VerifyPaymentStatusService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
