@@ -4,11 +4,15 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,7 +62,7 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
     private SignInButton signInButton;
     private static final String TAG = "LoginButtonsActivity";
     private static final int RC_SIGN_IN = 9001;
-    private String email, firstname, lastname, socialLoginId, socialType;
+    private String email, firstname, lastname, socialLoginId, socialType, deviceToken;
     private GoogleApiClient mGoogleApiClient;
     private TextView mStatusTextView;
     private ProgressDialog mProgressDialog;
@@ -68,6 +72,7 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
     RequestQueue queue;
     String url = "http://oilresetproapi.sandboxserver.co.za/add-new-user";
     String url2 = "http://oilresetproapi.sandboxserver.co.za/authenticate-user";
+    RelativeLayout rl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,12 +82,14 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
         FacebookSdk.sdkInitialize(getApplicationContext());
         AppEventsLogger.activateApp(this);
 
+
         queue = Volley.newRequestQueue(this);
 
         sharedPref = context.getSharedPreferences(
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         editor = sharedPref.edit();
 
+        rl = (RelativeLayout) findViewById(R.id.activity_login_buttons);
         loginButton = (LoginButton) findViewById(R.id.login_button);
         signInButton = (SignInButton) findViewById(R.id.sign_in_button);
         fbButton = (Button) findViewById(R.id.fb);
@@ -137,10 +144,15 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
                                     params.put("surname", lastname);
                                     params.put("email", email);
                                     params.put("password", null);
-                                    params.put("push_token", "push_token");
                                     params.put("platform", "ANDROID");
                                     params.put("social_type","FACEBOOK");
                                     params.put("social_token",userId);
+
+                                    while (deviceToken == null){
+                                        deviceToken = FirebaseInstanceId.getInstance().getToken();
+
+                                    }
+                                    params.put("push_token", deviceToken);
 
                                     JSONObject parameters = new JSONObject(params);
                                     showProgressDialog();
@@ -215,6 +227,17 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+        deviceToken = sharedPref.getString(Constants.DEVICE_TOKEN, null);
+        if(deviceToken == null){
+            deviceToken = FirebaseInstanceId.getInstance().getToken();
+        }
+       // Log.d("device_token",deviceToken+"");
+    }
+
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
@@ -234,10 +257,19 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fb:
-                loginButton.performClick();
+                if(isNetworkAvailable()){
+                    loginButton.performClick();
+                }else {
+                    Snackbar.make(rl,"Not Connected",Snackbar.LENGTH_LONG).show();
+                }
+
                 break;
             case R.id.gp:
-                signInWithGoogle();
+                if(isNetworkAvailable()){
+                    signInWithGoogle();
+                }else {
+                    Snackbar.make(rl,"Not Connected",Snackbar.LENGTH_LONG).show();
+                }
                 break;
             case R.id.orp:
                 goToEmailLogin();
@@ -302,10 +334,15 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
             params.put("surname", lastname);
             params.put("email", email);
             params.put("password", null);
-            params.put("push_token", "push_token");
             params.put("platform", "ANDROID");
             params.put("social_type","FACEBOOK");
             params.put("social_token",socialLoginId);
+
+            while (deviceToken == null ){
+                deviceToken = FirebaseInstanceId.getInstance().getToken();
+
+            }
+            params.put("push_token", deviceToken);
 
             JSONObject parameters = new JSONObject(params);
             showProgressDialog();
@@ -386,12 +423,13 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
 
     private void doLogin(){
         Map<String, String> params2 = new HashMap<String, String>();
-        params2.put("push_token", "push_token");
-        params2.put("platform", "ANDROID");
-        params2.put("social_login","fb_gp");
-        params2.put("email", email);
 
-        final String url = url2+"?push_token=push_token&platform=ANDROID&social_login=gb_gp&email="+email;
+
+        while (deviceToken == null){
+            deviceToken = FirebaseInstanceId.getInstance().getToken();
+        }
+
+        final String url = url2+"?push_token="+deviceToken+"&platform=ANDROID&social_login=gb_gp&email="+email;
 
         showProgressDialog();
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
@@ -441,5 +479,12 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
                 }
                 );
         queue.add(jsObjRequest);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

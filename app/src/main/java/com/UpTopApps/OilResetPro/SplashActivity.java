@@ -43,9 +43,7 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable(){
             @Override
             public void run() {
-                if(!token.equals(null)){
                     editor.putString(Constants.DEVICE_TOKEN, token);
-                }
                 if(is_first_time){
                     startActivity(introActivityIntent);
                 }else {

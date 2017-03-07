@@ -65,8 +65,7 @@ public class EmailLoginActivity extends AppCompatActivity implements LoaderCallb
     private static final int REQUEST_READ_CONTACTS = 0;
     String url2 = "http://oilresetproapi.sandboxserver.co.za/authenticate-user";
     RequestQueue queue;
-    private String email, password;
-    EditText txtName, txtSurname, txtEmail, txtPassword;
+    private String email, password, deviceToken;
     EmailLoginActivity context = EmailLoginActivity.this;
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
@@ -167,6 +166,16 @@ public class EmailLoginActivity extends AppCompatActivity implements LoaderCallb
         return password.length() > 4;
     }
 
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        deviceToken = sharedPref.getString(Constants.DEVICE_TOKEN, null);
+        if(deviceToken == null){
+            deviceToken = FirebaseInstanceId.getInstance().getToken();
+        }
+        // Log.d("device_token",deviceToken+"");
+    }
     /**
      * Shows the progress UI and hides the login form.
      */

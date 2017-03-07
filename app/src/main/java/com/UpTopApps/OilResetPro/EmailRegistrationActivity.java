@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +33,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,8 +74,8 @@ public class EmailRegistrationActivity extends AppCompatActivity implements Load
     private View mLoginFormView;
     String url = "http://oilresetproapi.sandboxserver.co.za/add-new-user";
     RequestQueue queue;
-    private String email, firstname, lastname, socialLoginId, password;
-    EditText txtName, txtSurname, txtEmail, txtPassword, mPasswordView;
+    private String email, firstname, lastname, password, deviceToken;
+    EditText txtName, txtSurname, txtEmail, mPasswordView;
     EmailRegistrationActivity context = EmailRegistrationActivity.this;
 
     @Override
@@ -92,70 +95,80 @@ public class EmailRegistrationActivity extends AppCompatActivity implements Load
         txtName = (EditText) findViewById(R.id.name);
         txtSurname = (EditText) findViewById(R.id.surname);
         txtEmail = (EditText) findViewById(R.id.email);
+        final LinearLayout linearLayout = (LinearLayout) findViewById(R.id.email_registration);
 
 
         Button mRegisterButton = (Button) findViewById(R.id.email_register_button);
         mRegisterButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                firstname = txtName.getText().toString();
-                lastname = txtSurname.getText().toString();
-                email = txtEmail.getText().toString();
-                password = mPasswordView.getText().toString();
+                if(isNetworkAvailable()){
+                    firstname = txtName.getText().toString();
+                    lastname = txtSurname.getText().toString();
+                    email = txtEmail.getText().toString();
+                    password = mPasswordView.getText().toString();
 
                     Map<String, String>  params = new HashMap<String, String>();
                     params.put("name", firstname);
                     params.put("surname", lastname);
                     params.put("email", email);
                     params.put("password", password);
-                    params.put("push_token", "push_token");
+                    while (deviceToken == null){
+                        deviceToken = FirebaseInstanceId.getInstance().getToken();
+
+                    }
+                    params.put("push_token", deviceToken);
                     params.put("platform", "ANDROID");
-                JSONObject parameters = new JSONObject(params);
-                showProgress(true);
-                JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                        (Request.Method.POST, url, parameters, new Response.Listener<JSONObject>() {
+                    JSONObject parameters = new JSONObject(params);
+                    showProgress(true);
+                    JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                            (Request.Method.POST, url, parameters, new Response.Listener<JSONObject>() {
 
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                // mTxtDisplay.setText("Response: " + response.toString());
-                                showProgress(false);
-                                String res = null;
-                                try {
-                                    Log.d("Response: ",  response.toString());
-                                    res = response.getString("response");
-                                    if(Integer.parseInt(res) > 0){
-                                        editor.putBoolean(Constants.IS_LOGGED_IN, true);
-                                        editor.putString(Constants.AUTH_TOKEN, response.getString("auth_token"));
-                                        editor.putString(Constants.FIRST_NAME, firstname);
-                                        editor.putString(Constants.LAST_NAME, lastname);
-                                        editor.putString(Constants.USER_EMAIL, email);
-                                        editor.putBoolean(Constants.HAS_PAID, false);
+                                @Override
+                                public void onResponse(JSONObject response) {
+                                    // mTxtDisplay.setText("Response: " + response.toString());
+                                    showProgress(false);
+                                    String res = null;
+                                    try {
+                                        Log.d("Response: ",  response.toString());
+                                        res = response.getString("response");
+                                        if(Integer.parseInt(res) > 0){
+                                            editor.putBoolean(Constants.IS_LOGGED_IN, true);
+                                            editor.putString(Constants.AUTH_TOKEN, response.getString("auth_token"));
+                                            editor.putString(Constants.FIRST_NAME, firstname);
+                                            editor.putString(Constants.LAST_NAME, lastname);
+                                            editor.putString(Constants.USER_EMAIL, email);
+                                            editor.putBoolean(Constants.HAS_PAID, false);
 
-                                        editor.commit();
-                                        Intent intent = new Intent(EmailRegistrationActivity.this, HomeActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(intent);
-                                    }else {
+                                            editor.commit();
+                                            Intent intent = new Intent(EmailRegistrationActivity.this, HomeActivity.class);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent);
+                                        }else {
+                                            Toast.makeText(EmailRegistrationActivity.this,res,Toast.LENGTH_LONG).show();
+                                        }
+                                    }catch (JSONException ex){
+
+                                    }catch (NumberFormatException ex2){
                                         Toast.makeText(EmailRegistrationActivity.this,res,Toast.LENGTH_LONG).show();
                                     }
-                                }catch (JSONException ex){
 
-                                }catch (NumberFormatException ex2){
-                                    Toast.makeText(EmailRegistrationActivity.this,res,Toast.LENGTH_LONG).show();
                                 }
+                            }, new Response.ErrorListener() {
 
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    // TODO Auto-generated method stub
+                                    showProgress(false);
+
+                                }
                             }
-                        }, new Response.ErrorListener() {
+                            );
+                    queue.add(jsObjRequest);
+                }else {
+                    Snackbar.make(linearLayout,"Not Connected", Snackbar.LENGTH_LONG);
+                }
 
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                // TODO Auto-generated method stub
-                                showProgress(false);
-
-                            }
-                        }
-                        );
-                queue.add(jsObjRequest);
             }
         });
 
@@ -173,6 +186,15 @@ public class EmailRegistrationActivity extends AppCompatActivity implements Load
         getLoaderManager().initLoader(0, null, this);
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        deviceToken = sharedPref.getString(Constants.DEVICE_TOKEN, null);
+        if(deviceToken == null){
+            deviceToken = FirebaseInstanceId.getInstance().getToken();
+        }
+        // Log.d("device_token",deviceToken+"");
+    }
     private boolean mayRequestContacts() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
@@ -307,6 +329,13 @@ public class EmailRegistrationActivity extends AppCompatActivity implements Load
 
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 }
