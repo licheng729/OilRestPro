@@ -1,7 +1,9 @@
 {
   "project_info": {
     "project_number": "599895374013",
-    "project_id": "oil-reset-pro"
+    "firebase_url": "https://oil-reset-pro.firebaseio.com",
+    "project_id": "oil-reset-pro",
+    "storage_bucket": "oil-reset-pro.appspot.com"
   },
   "client": [
     {
@@ -13,8 +15,20 @@
       },
       "oauth_client": [
         {
+          "client_id": "599895374013-t57amkh59i2ic8p7iu7qiq07jbn76ghb.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
           "client_id": "599895374013-2ln286vts4uo45c8kifph9h1t1svfko3.apps.googleusercontent.com",
           "client_type": 3
+        },
+        {
+          "client_id": "599895374013-de01fenehnbdr42a70qqdfhdukcde6bn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.UpTopApps.OilResetPro",
+            "certificate_hash": "3b37159fd6decfee4dde5873b299d789677af327"
+          }
         }
       ],
       "api_key": [
@@ -27,11 +41,16 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "599895374013-t57amkh59i2ic8p7iu7qiq07jbn76ghb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }
