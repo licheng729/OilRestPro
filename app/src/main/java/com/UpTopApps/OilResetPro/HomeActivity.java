@@ -43,7 +43,7 @@ public class HomeActivity extends AppCompatActivity {
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
     private DataClass_RP dClass;
-    String url = "http://oilresetproapi.sandboxserver.co.za/get-all-procedures";
+    String url = "http://api.devfj.com/get-all-procedures";
     RequestQueue queue;
     private ProgressDialog mProgressDialog;
     boolean has_paid;
@@ -178,9 +178,6 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if (mAdView != null) {
-            mAdView.resume();
-        }
 
         has_paid = sharedPref.getBoolean(Constants.HAS_PAID, false);
 

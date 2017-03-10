@@ -66,7 +66,7 @@ public class EmailLoginActivity extends AppCompatActivity implements LoaderCallb
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
-    String url2 = "http://oilresetproapi.sandboxserver.co.za/authenticate-user";
+    String url2 = "http://api.devfj.com/authenticate-user";
     RequestQueue queue;
     private String email, password, deviceToken;
     EmailLoginActivity context = EmailLoginActivity.this;

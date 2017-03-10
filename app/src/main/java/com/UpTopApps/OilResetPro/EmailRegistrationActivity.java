@@ -72,7 +72,7 @@ public class EmailRegistrationActivity extends AppCompatActivity implements Load
     private AutoCompleteTextView mEmailView;
     private View mProgressView;
     private View mLoginFormView;
-    String url = "http://oilresetproapi.sandboxserver.co.za/add-new-user";
+    String url = "http://api.devfj.com/add-new-user";
     RequestQueue queue;
     private String email, firstname, lastname, password, deviceToken;
     EditText txtName, txtSurname, txtEmail, mPasswordView;

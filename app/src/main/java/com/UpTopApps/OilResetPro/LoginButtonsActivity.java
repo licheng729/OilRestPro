@@ -70,8 +70,8 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
     SharedPreferences.Editor editor;
     LoginButtonsActivity context = LoginButtonsActivity.this;
     RequestQueue queue;
-    String url = "http://oilresetproapi.sandboxserver.co.za/add-new-user";
-    String url2 = "http://oilresetproapi.sandboxserver.co.za/authenticate-user";
+    String url = "http://api.devfj.com/add-new-user";
+    String url2 = "http://api.devfj.com/authenticate-user";
     RelativeLayout rl;
 
     @Override

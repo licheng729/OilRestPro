@@ -32,7 +32,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     static final String ITEM_SKU = "com_uptopapps_oilresetpro_removeads";// New One 2.99 / updated
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
-    String url = "http://oilresetproapi.sandboxserver.co.za/update-payment";
+    String url = "http://api.devfj.com/update-payment";
     RequestQueue queue;
     private ProgressDialog mProgressDialog;
 
