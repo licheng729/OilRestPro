@@ -335,7 +335,7 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
             params.put("email", email);
             params.put("password", null);
             params.put("platform", "ANDROID");
-            params.put("social_type","FACEBOOK");
+            params.put("social_type","GOOGLE+");
             params.put("social_token",socialLoginId);
 
             while (deviceToken == null ){
