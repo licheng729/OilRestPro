@@ -79,7 +79,9 @@
         <service
             android:name=".VerifyPaymentStatusService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name=".NotificationActivity"></activity>
     </application>
 
 </manifest>
