@@ -175,7 +175,11 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
                                                             editor.putString(Constants.USER_EMAIL, email);
                                                             editor.putBoolean(Constants.HAS_PAID, false);
                                                             editor.commit();
-                                                           startActivity(new Intent(LoginButtonsActivity.this, HomeActivity.class));
+                                                           //startActivity(new Intent(LoginButtonsActivity.this, HomeActivity.class));
+                                                            Intent intent = new Intent(LoginButtonsActivity.this, HomeActivity.class);
+                                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                            startActivity(intent);
+                                                            finish();
                                                         }else {
                                                            Toast.makeText(LoginButtonsActivity.this,res,Toast.LENGTH_LONG).show();
                                                         }
@@ -365,7 +369,11 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
                                     editor.putString(Constants.USER_EMAIL, email);
                                     editor.putBoolean(Constants.HAS_PAID, false);
                                     editor.commit();
-                                   startActivity(new Intent(LoginButtonsActivity.this, HomeActivity.class));
+                                 //  startActivity(new Intent(LoginButtonsActivity.this, HomeActivity.class));
+                                    Intent intent = new Intent(LoginButtonsActivity.this, HomeActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                    finish();
                                 }else {
                                      Toast.makeText(LoginButtonsActivity.this,res,Toast.LENGTH_LONG).show();
                                 }
@@ -457,7 +465,11 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
                                 }
 
                                 editor.commit();
-                               startActivity(new Intent(LoginButtonsActivity.this, HomeActivity.class));
+                              // startActivity(new Intent(LoginButtonsActivity.this, HomeActivity.class));
+                                Intent intent = new Intent(LoginButtonsActivity.this, HomeActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                                finish();
                             }else {
                                  Toast.makeText(LoginButtonsActivity.this,res,Toast.LENGTH_LONG).show();
                             }

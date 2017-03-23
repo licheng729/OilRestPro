@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.UpTopApps.OilResetPro.helper.DataClass_RP;
 import com.UpTopApps.OilResetPro.util.IabHelper;
 import com.UpTopApps.OilResetPro.util.IabResult;
 import com.UpTopApps.OilResetPro.util.Inventory;
@@ -41,6 +42,7 @@ private ProgressDialog dialog;
     protected boolean in_App_Billing_disable = true;
     ImageView remove_aids, restore_purchase, btn_intro;
     private String ITEM_id;
+    private DataClass_RP dClass = DataClass_RP.sharedRPDataClass();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,16 @@ private ProgressDialog dialog;
         restore_purchase = (ImageView) findViewById(R.id.restore_purchase);
         remove_aids = (ImageView) findViewById(R.id.remove_aids);
         btn_intro = (ImageView) findViewById(R.id.btn_intro);
+        ImageView btn_home = (ImageView) findViewById(R.id.btn_home);
+        btn_home.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+//				startActivity(new Intent(Setting_Activity.this, ActivityHome.class));
+                dClass.back = true;
+                finish();
+            }
+        });
         restore_purchase.setOnClickListener(this);
         remove_aids.setOnClickListener(this);
         btn_intro.setOnClickListener(this);

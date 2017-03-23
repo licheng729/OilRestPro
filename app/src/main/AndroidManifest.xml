@@ -81,7 +81,8 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".NotificationActivity"></activity>
+        <activity android:name=".NotificationActivity" />
+        <activity android:name=".VinliVehiclesDetail"></activity>
     </application>
 
 </manifest>

@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.UpTopApps.OilResetPro.helper.DataClass_RP;
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -91,10 +92,13 @@ public class HomeActivity extends AppCompatActivity {
                 if (dClass.mainArray.size() > 0) {
                     startActivity(new Intent(context, YearsActivity.class));
                 }else {
-
+                   // url = url+"?authorization="+auth_token;
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("authorization", auth_token);
+                    JSONObject parameters = new JSONObject(params);
                     showProgressDialog();
                     JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                            (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                            (Request.Method.POST, url, parameters, new Response.Listener<JSONObject>() {
 
                                 @Override
                                 public void onResponse(JSONObject response) {
@@ -103,7 +107,7 @@ public class HomeActivity extends AppCompatActivity {
                                     String res = null;
 
                                     try {
-                                       // Log.d("Response: ",  response.toString());
+                                       Log.d("Response: ",  response.toString());
                                         res = response.getString("data");
                                         JSONArray jsonArray = new JSONArray(res);
                                            Log.d("Response: ",  res);
@@ -139,15 +143,20 @@ public class HomeActivity extends AppCompatActivity {
                                     hideProgressDialog();
 
                                 }
-                            }){
+                            })/*{
                         @Override
                         public Map<String, String> getHeaders() throws AuthFailureError {
                             Map<String, String>  params = new HashMap<String, String>();
-                            params.put("Authorization", auth_token);
+                            params.put("authorization", auth_token);
 
                             return params;
                         }
-                    };
+                    }*/;
+
+                    jsObjRequest.setRetryPolicy(new DefaultRetryPolicy(
+                            180000,
+                            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
                     queue.add(jsObjRequest);
                 }
             }

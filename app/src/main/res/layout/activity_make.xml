@@ -8,7 +8,16 @@ android:background="@mipmap/bg_2"
 android:gravity="center_horizontal"
 android:orientation="vertical"
 android:weightSum="1"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context="com.UpTopApps.OilResetPro.MakeActivity">
+
+    <AutoCompleteTextView android:id="@+id/autotext"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:nextFocusUp="@id/autotext"
+        android:nextFocusLeft="@id/autotext"
+        android:visibility="gone"/>
 
 <RelativeLayout
     android:layout_width="match_parent"

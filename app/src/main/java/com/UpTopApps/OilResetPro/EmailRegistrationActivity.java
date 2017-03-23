@@ -144,6 +144,7 @@ public class EmailRegistrationActivity extends AppCompatActivity implements Load
                                             Intent intent = new Intent(EmailRegistrationActivity.this, HomeActivity.class);
                                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                                             startActivity(intent);
+                                            finish();
                                         }else {
                                             Toast.makeText(EmailRegistrationActivity.this,res,Toast.LENGTH_LONG).show();
                                         }
@@ -336,6 +337,12 @@ public class EmailRegistrationActivity extends AppCompatActivity implements Load
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        finish();
     }
 
 }

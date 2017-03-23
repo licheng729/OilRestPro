@@ -309,6 +309,7 @@ public class EmailLoginActivity extends AppCompatActivity implements LoaderCallb
                                 Intent intent = new Intent(EmailLoginActivity.this, HomeActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(intent);
+                                finish();
                             }else {
                                 Toast.makeText(EmailLoginActivity.this,res,Toast.LENGTH_LONG).show();
                             }
@@ -339,5 +340,9 @@ public class EmailLoginActivity extends AppCompatActivity implements LoaderCallb
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        finish();
+    }
 }

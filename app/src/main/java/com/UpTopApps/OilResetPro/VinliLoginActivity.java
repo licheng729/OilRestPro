@@ -6,6 +6,7 @@ import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,11 +14,30 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.JsonObject;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import li.vin.net.Coordinate;
 import li.vin.net.Device;
@@ -43,13 +63,17 @@ public class VinliLoginActivity extends AppCompatActivity {
     private TextView email;
     private TextView phone;
     private LinearLayout deviceContainer;
+    RequestQueue queue;
 
     private boolean contentBound;
     private boolean signInRequested;
     private VinliApp vinliApp;
     private CompositeSubscription subscription;
     private Subscription streamSubscription;
-
+    private ListView list_device;
+    private Adapter adp;
+    private ArrayList<String> devices = new ArrayList<String>();
+    private ArrayList<String> device_ids = new ArrayList<String>();
     @Override
     protected void onResume() {
         super.onResume();
@@ -82,7 +106,11 @@ public class VinliLoginActivity extends AppCompatActivity {
     void onSignOutClick() {
         if (vinliApp != null && !isFinishing()) {
             stopStream();
-            signIn();
+          //  signIn();
+            Vinli.clearApp(this);
+            vinliApp = null;
+            killAllCookies();
+            finish();
         }
     }
 
@@ -129,11 +157,116 @@ public class VinliLoginActivity extends AppCompatActivity {
         if (contentBound) return;
         setContentView(R.layout.activity_vinli_login);
 
-        firstName = (TextView) findViewById(R.id.first_name);
-        lastName = (TextView) findViewById(R.id.last_name);
-        email = (TextView) findViewById(R.id.email);
-        phone = (TextView) findViewById(R.id.phone);
+       // firstName = (TextView) findViewById(R.id.first_name);
+       // lastName = (TextView) findViewById(R.id.last_name);
+       // email = (TextView) findViewById(R.id.email);
+      //  phone = (TextView) findViewById(R.id.phone);
         deviceContainer = (LinearLayout) findViewById(R.id.device_container);
+        ImageView btn_signout = (ImageView) findViewById(R.id.btn_singout);
+        list_device = (ListView) findViewById(R.id.list_device);
+        queue = Volley.newRequestQueue(this);
+
+        btn_signout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("logout:", "clicked");
+                onSignOutClick();
+            }
+        });
+
+        list_device.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position,long arg3) {
+                // TODO Auto-generated method stub
+                   Intent redirect = new Intent(VinliLoginActivity.this, MakeActivity.class);
+                   // redirect.putExtra("vehicle", device_ids.get(position));
+
+
+               // showProgressDialog();
+                String url = "http://api.devfj.com/get-vinli-vehicles?device_id="+device_ids.get(position);
+                JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                        (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                // mTxtDisplay.setText("Response: " + response.toString());
+                              //  hideProgressDialog();
+                                String res = null;
+
+                                try {
+                                    Log.d("Response: ",  response.toString());
+                                    res = response.getString("vehicles");
+                                    JSONArray jsonArray = new JSONArray(res);
+
+
+                                    if(jsonArray.length() > 0){
+                                        Intent intent = new Intent(VinliLoginActivity.this, VinliVehiclesDetail.class);
+                                        ArrayList<CarsData> carsDatas = new ArrayList<CarsData>();
+                                        for (int i = 0; i < jsonArray.length(); i++) {
+                                            JSONObject jsonObject = new JSONObject();
+                                            jsonObject.put("year",jsonArray.getJSONObject(i).getString("year") );
+                                            jsonObject.put("make",jsonArray.getJSONObject(i).getString("make") );
+                                            jsonObject.put("model",jsonArray.getJSONObject(i).getString("model") );
+                                            jsonObject.put("video","none" );
+                                            jsonObject.put("reset","reset" );
+                                            CarsData obj = new CarsData(jsonObject);
+                                            carsDatas.add(obj);
+                                        }
+                                        intent.putExtra("cars_datas", carsDatas);
+                                        startActivity(intent);
+
+                                    }else{
+
+                                    }
+                                  //  Log.d("Response: ",  res);
+                                    //  if(res.equals("success")){
+
+
+
+                                    // }else {
+                                    //  Toast.makeText(EmailLoginActivity.this,res,Toast.LENGTH_LONG).show();
+                                    // }
+                                }catch (JSONException ex){
+                                    Log.d("Response: ",  ex.getMessage());
+                                }catch (NumberFormatException ex2){
+                                    //Toast.makeText(EmailLoginActivity.this,res,Toast.LENGTH_LONG).show();
+                                }
+
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                // TODO Auto-generated method stub
+                              //  hideProgressDialog();
+
+                            }
+                        })/*{
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String>  params = new HashMap<String, String>();
+                            try {
+                                String text = getString(R.string.app_client_id)+":T26eg_uZpC3P1n9Vv5";
+                                Log.d("String",text);
+                                byte[] data = text.getBytes("UTF-8");
+                                Log.d("Byte",data+"");
+                                Log.d("Encoded String",Base64.encodeToString(data, Base64.DEFAULT));
+                                params.put("Authorization: Basic ", Base64.encodeToString(data, Base64.DEFAULT) );
+                            }catch (java.io.UnsupportedEncodingException ex){
+                                ex.printStackTrace();
+                            }
+                            return params;
+                        }
+                    }*/;
+
+                jsObjRequest.setRetryPolicy(new DefaultRetryPolicy(
+                        180000,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                queue.add(jsObjRequest);
+
+            }
+        });
 
         contentBound = true;
     }
@@ -169,8 +302,8 @@ public class VinliLoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onNext(User user) {
-                        setStyledText(getString(R.string.first_name), user.firstName(), firstName);
-                        setStyledText(getString(R.string.last_name), user.lastName(), lastName);
+                      //  setStyledText(getString(R.string.first_name), user.firstName(), firstName);
+                      //  setStyledText(getString(R.string.last_name), user.lastName(), lastName);
                       //  setStyledText(getString(R.string.email), user.email(), email);
                       //  setStyledText(getString(R.string.phone), user.phone(), phone);
                     }
@@ -183,6 +316,8 @@ public class VinliLoginActivity extends AppCompatActivity {
                 .subscribe(new Subscriber<Device>() {
                     @Override
                     public void onCompleted() { // Called after we have finished fetching all devices.
+                        adp = new Adapter(VinliLoginActivity.this, devices);
+                        list_device.setAdapter(adp);
                     }
 
                     @Override
@@ -194,16 +329,16 @@ public class VinliLoginActivity extends AppCompatActivity {
                     public void onNext(Device device) { // Called for each device that we fetch.
                         // Inflate device layout into device container. See above note about how using an
                         // AdapterView would be better if this weren't just a naive example.
-                       /* View v = LayoutInflater.from(VinliLoginActivity.this).inflate(R.layout.device_layout, deviceContainer, false);
-                        TextView deviceName = (TextView) v.findViewById(R.id.device_name);
-                        final TextView latestVehicle = (TextView) v.findViewById(R.id.latest_vehicle);
-                        final TextView latestLocation = (TextView) v.findViewById(R.id.latest_location);
-                        Button streamButton = (Button) v.findViewById(R.id.stream_button);
-                        deviceContainer.addView(v);
+                      //  View v = LayoutInflater.from(VinliLoginActivity.this).inflate(R.layout.device_layout, deviceContainer, false);
+                      //  TextView deviceName = (TextView) v.findViewById(R.id.device_name);
+                       // final TextView latestVehicle = (TextView) v.findViewById(R.id.latest_vehicle);
+                       // final TextView latestLocation = (TextView) v.findViewById(R.id.latest_location);
+                       // Button streamButton = (Button) v.findViewById(R.id.stream_button);
+                       // deviceContainer.addView(v);
 
-                        streamButton.setTag(device);
+                      //  streamButton.setTag(device);
 
-                        streamButton.setOnClickListener(new View.OnClickListener() {
+                       /* streamButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 VinliLoginActivity.this.streamButtonPressed((Button) v);
@@ -211,7 +346,8 @@ public class VinliLoginActivity extends AppCompatActivity {
                         });*/
 
                        // setStyledText(getString(R.string.device_name), (device.name() != null) ? device.name() : getString(R.string.unnamed_device), deviceName);
-
+                        devices.add( device.name() );
+                        device_ids.add(device.id());
                       /*  subscription.add(device.latestVehicle() // Get the latest vehicle for this device
                                 .observeOn(AndroidSchedulers.mainThread()) // Run the onCompleted/onError/onNext on Android's main/UI thread
                                 .subscribe(new Subscriber<Vehicle>() {

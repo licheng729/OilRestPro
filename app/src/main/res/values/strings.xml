@@ -7,6 +7,9 @@
     <string name="orp_login_text">Login With Your Email</string>
     <string name="loading">Loading…</string>
     <string name="title_activity_email_login">Sign in</string>
+    <string name="unnamed_vehicle">Unnamed Vehicle</string>
+    <string name="unnamed_device">Unnamed Device</string>
+    <string name="device_name">Device Name</string>
 
     <!-- Strings related to login and register -->
     <string name="prompt_email">Email</string>
