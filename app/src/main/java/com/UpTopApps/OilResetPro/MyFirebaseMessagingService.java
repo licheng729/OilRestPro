@@ -30,6 +30,9 @@ package com.UpTopApps.OilResetPro;
         import com.google.firebase.messaging.FirebaseMessagingService;
         import com.google.firebase.messaging.RemoteMessage;
 
+        import org.json.JSONException;
+        import org.json.JSONObject;
+
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
@@ -81,7 +84,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      */
     private void sendNotification(String messageBody, String title) {
         Intent intent = new Intent(this, NotificationActivity.class);
-        intent.putExtra("body",messageBody);
+        String text = "";
+        try {
+
+            JSONObject obj = new JSONObject(messageBody);
+
+         text =   obj.getString("text");
+
+        } catch (JSONException e) {
+            Log.d("jex",e.getMessage());
+        }
+        intent.putExtra("body",text);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
@@ -90,7 +103,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_stat_ic_notification)
                 .setContentTitle(title)
-                .setContentText(messageBody)
+                .setContentText(text)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent);

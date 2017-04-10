@@ -135,7 +135,7 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
                                     email = object.getString("email");
                                     firstname = object.getString("first_name");
                                     lastname = object.getString("last_name");
-                                    String msg = "Welcome "+firstname+" "+lastname+" you are awesome!!!";
+                                  //  String msg = "Welcome "+firstname+" "+lastname+" you are awesome!!!";
                                   //  Toast.makeText(LoginButtonsActivity.this,msg,Toast.LENGTH_LONG).show();
                                    // startActivity(new Intent(LoginButtonsActivity.this, HomeActivity.class));
 
@@ -187,7 +187,7 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
 
                                                     }catch (NumberFormatException ex2){
                                                         if(res.equalsIgnoreCase("EMAIL ALREADY EXISTS")){
-                                                            doLogin();
+                                                            doLogin("FACEBOOK");
                                                         }else {
                                                             Toast.makeText(LoginButtonsActivity.this,res,Toast.LENGTH_LONG).show();
                                                         }
@@ -381,7 +381,7 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
 
                             }catch (NumberFormatException ex2){
                                 if(res.equalsIgnoreCase("EMAIL ALREADY EXISTS")){
-                                    doLogin();
+                                    doLogin("GOOGLE");
                                 }else {
                                     Toast.makeText(LoginButtonsActivity.this,res,Toast.LENGTH_LONG).show();
                                 }
@@ -429,7 +429,7 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    private void doLogin(){
+    private void doLogin(String socialType){
         Map<String, String> params2 = new HashMap<String, String>();
 
 
@@ -437,7 +437,7 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
             deviceToken = FirebaseInstanceId.getInstance().getToken();
         }
 
-        final String url = url2+"?push_token="+deviceToken+"&platform=ANDROID&social_login=gb_gp&email="+email;
+        final String url = url2+"?push_token="+deviceToken+"&platform=ANDROID&social_login=gb_gp&email="+email+"&social_type="+socialType;
 
         showProgressDialog();
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
@@ -471,7 +471,14 @@ public class LoginButtonsActivity extends AppCompatActivity implements View.OnCl
                                 startActivity(intent);
                                 finish();
                             }else {
-                                 Toast.makeText(LoginButtonsActivity.this,res,Toast.LENGTH_LONG).show();
+                                if(res.equals("ACCOUNT DISABLED")){
+                                    Toast.makeText(LoginButtonsActivity.this,"Your account has been disabled. Please use another account",Toast.LENGTH_LONG).show();
+                                } else if (res.equals("SOCIAL TYPE DO NOT MATCH")){
+                                    Toast.makeText(LoginButtonsActivity.this,"Your email account is associated with a different login type",Toast.LENGTH_LONG).show();
+                                }else{
+                                    Toast.makeText(LoginButtonsActivity.this,res,Toast.LENGTH_LONG).show();
+                                }
+
                             }
                         }catch (JSONException ex){
 

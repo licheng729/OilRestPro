@@ -311,7 +311,11 @@ public class EmailLoginActivity extends AppCompatActivity implements LoaderCallb
                                 startActivity(intent);
                                 finish();
                             }else {
-                                Toast.makeText(EmailLoginActivity.this,res,Toast.LENGTH_LONG).show();
+                                if(res.equals("ACCOUNT DISABLED")){
+                                    Toast.makeText(EmailLoginActivity.this,"Your account has been disabled. Please use another account",Toast.LENGTH_LONG).show();
+                                } else{
+                                    Toast.makeText(EmailLoginActivity.this,res,Toast.LENGTH_LONG).show();
+                                }
                             }
                         }catch (JSONException ex){
 
